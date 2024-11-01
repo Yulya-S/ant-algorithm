@@ -17,6 +17,7 @@ int main()
 	Font font;
 	font.loadFromFile("arial.ttf");
 
+
     char inFileName[140] = { "graph.txt" };
     Graph graph;
     graph.makeGraph(inFileName);
@@ -33,7 +34,7 @@ int main()
 	};
 
 	Anthill anthill(graph);
-
+	anthill.read_conf_file();
 
 	Text text;
 	text.setFont(font);
@@ -64,7 +65,7 @@ int main()
 
 		if (!gamePause && !end) {
 			if (step) gamePause = true;
-			if (anthill.process(100, 5000, 0.5, 0.5)) {
+			if (anthill.process()) {
 				string txt = "Длина кратчайшего пути = " + to_string(anthill.min_value) + "\nСамый короткий путь:";
 				string eng_text = "min_value = " + to_string(anthill.min_value) + "\nmin trail:";
 				for (auto i : anthill.min_trail) {

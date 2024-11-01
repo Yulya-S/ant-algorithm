@@ -79,14 +79,20 @@ private:
 	Ant ant;
 	int great_ant_result = 0;
 
+	float greed = 0.5;
+	float evaporation_rate = 0.5;
+	int stop_count = 100;
+	int stop_ant_count = 5000;
+
 public:
 	int ant_number = 0;
 	int min_value = 99999999;
 	vector<string> min_trail;
 
 	Anthill(Graph start_graph);
-	bool process(const int stop_count = 40, const int stop_ant_count = 5000, const float evaporation_rate = 0.5, const float greed = 1.);
+	bool process();
 	void draw(RenderWindow& window, Font font, const bool draw_pheromones = false);
+	void read_conf_file();
 };
 
 #endif

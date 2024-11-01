@@ -1,10 +1,14 @@
 #include "Graph.h"
 #include <cmath>
+#include <fstream>
 
 // Класс Ant
 void Ant::run(Graph& graph) {
 	// Муравей выбежал из домика
-	if (trail.size() == 0) trail.push_back(graph.nodes[0]->getName());
+	if (trail.size() == 0) {
+		int rr = rand() % graph.nodes.size();
+		trail.push_back(graph.nodes[rr]->getName());
+	}
 
 	pheromone_recalculation(graph, trail[trail.size() - 1]);
 
@@ -12,14 +16,14 @@ void Ant::run(Graph& graph) {
 	// он оббежал все точки
 	if (trail.size() == graph.nodes.size()) {
 		end_trail = true;
-		if (!(&graph.get_node_by_name(trail[trail.size() - 1]))->is_neighbour(graph.nodes[0]->getName())) {
+		if (!(&graph.get_node_by_name(trail[trail.size() - 1]))->is_neighbour(trail[0])) {
 			// вернулся домой
 			impasse = true;
 		}
 		else {
 			// вернулся домой
 			Node* node = (&graph.get_node_by_name(trail[trail.size() - 1]));
-			int neigh = node->neighbour_index_by_name(graph.nodes[0]->getName());
+			int neigh = node->neighbour_index_by_name(trail[0]);
 			trail_summ += node->edgePrices[neigh];
 			node->pheromones[neigh] += float(1. / node->edgePrices[neigh]);
 			trail.push_back(trail[0]);
@@ -131,7 +135,7 @@ Anthill::Anthill(Graph start_graph) {
 	text.setStyle(Text::Bold);
 }
 
-bool Anthill::process(const int stop_count, const int stop_ant_count, const float evaporation_rate, const float greed) {
+bool Anthill::process() {
 	if (ant_number == 0) {
 		ant = Ant(evaporation_rate, greed);
 		ant_number += 1;
@@ -217,4 +221,18 @@ void Anthill::draw(RenderWindow& window, Font font, const bool draw_pheromones) 
 
 	if (ant_number > 0)
 		ant.draw(window, graph);
+}
+
+void Anthill::read_conf_file() {
+	string text;
+	ifstream in("conf.txt");
+
+	in >> text;
+	greed = stof(text);
+	in >> text;
+	evaporation_rate = stof(text);
+	in >> text;
+	stop_count = stoi(text);
+	in >> text;
+	stop_ant_count = stoi(text);
 }
