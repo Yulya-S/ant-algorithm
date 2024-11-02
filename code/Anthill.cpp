@@ -49,7 +49,8 @@ void Ant::run(Graph& graph) {
 	// проверяем в какой диаппазон входит значение random
 	for (int i = 0; i < node->neighbours.size(); i++)
 		if (!name_in_trail(node->neighbours[i]->getName())) {
-			if (node->pheromones[i] == 0 && zero_value != 0) summ += zero_value;
+			if (node->pheromones[i] == 0 && zero_value != 0)
+				summ += zero_value;
 			else
 				summ += ((float(pow(node->pheromones[i], (1. - greed)) * pow((1. / node->edgePrices[i]), greed))) / denom);
 			if (summ >= random) {	
@@ -71,16 +72,19 @@ void Ant::pheromone_recalculation(Graph& graph, const string node_name) {
 float Ant::denominator(Graph& graph, const string node_name) {
 	float summ = 0.;
 	Node* node = (&graph.get_node_by_name(trail[trail.size() - 1]));
+	float zero_value = ((1 - summ_pheromone(graph, trail[trail.size() - 1])) / zero_trail(graph, trail[trail.size() - 1]));
 	for (int i = 0; i < node->neighbours.size(); i++)
 		if (!name_in_trail(node->neighbours[i]->getName())) {
-			summ += float(pow(node->pheromones[i], (1. - greed)) * pow((1. / node->edgePrices[i]), greed));
+			if (node->pheromones[i] == 0 && zero_value != 0)
+				summ += zero_value;
+			else
+				summ += float(pow(node->pheromones[i], (1. - greed)) * pow((1. / node->edgePrices[i]), greed));
 		}
 	return summ;
 }
 
 float Ant::summ_pheromone(Graph& graph, const string node_name) {
 	float summ = 0.;
-	float denom = denominator(graph, node_name);
 	Node* node = (&graph.get_node_by_name(trail[trail.size() - 1]));
 	for (int i = 0; i < node->neighbours.size(); i++)
 		if (!name_in_trail(node->neighbours[i]->getName()))
@@ -144,12 +148,16 @@ bool Anthill::process() {
 	if (ant.end_trail) {
 		if (!ant.impasse) {
 			graph.copy(graph_copy);
+			last_value = ant.trail_summ;
 			if (ant.trail_summ < min_value) {
 				min_value = ant.trail_summ;
 				min_trail = ant.trail;
 				great_ant_result = 0;
+				cout << min_value << endl;
+				fixing_best_path(1000);
 			}
-			if (ant.trail_summ == min_value && ant_number > stop_count * 3) {
+			if (ant.trail_summ == min_value){
+				fixing_best_path();
 				great_ant_result += 1;
 				if (great_ant_result > stop_count) return true;
 			}
@@ -165,11 +173,24 @@ bool Anthill::process() {
 	return false;
 }
 
+void Anthill::fixing_best_path(int fix_value) {
+	for (int i = 0; i < min_trail.size() - 1; i++) {
+		Node n = graph.get_node_by_name(min_trail[i]);
+		for (int l = 0; l < n.neighbours.size(); l++)
+			if (n.neighbours[l]->getName() == min_trail[i + 1])
+				n.pheromones[l] += fix_value;
+	}
+}
+
 void Anthill::draw(RenderWindow& window, Font font, const bool draw_pheromones) {
 	text.setFont(font);
 
 	text.setPosition(10, 500);
 	text.setString("min train: " + to_string(min_value));
+	window.draw(text);
+
+	text.setPosition(900, 500);
+	text.setString("last summ: " + to_string(last_value));
 	window.draw(text);
 
 	text.setPosition(650, 500);

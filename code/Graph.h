@@ -87,10 +87,12 @@ private:
 public:
 	int ant_number = 0;
 	int min_value = 99999999;
+	int last_value = 99999999;
 	vector<string> min_trail;
 
 	Anthill(Graph start_graph);
 	bool process();
+	void fixing_best_path(int fix_value = 10);
 	void draw(RenderWindow& window, Font font, const bool draw_pheromones = false);
 	void read_conf_file();
 };

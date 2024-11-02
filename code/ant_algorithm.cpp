@@ -95,7 +95,7 @@ int main()
 		if (end) window.draw(text);
 		else {
 			window.draw(line, 2, Lines);
-			anthill.draw(window, font);
+			anthill.draw(window, font, true);
 			graph.draw(window, font);
 		}
 
