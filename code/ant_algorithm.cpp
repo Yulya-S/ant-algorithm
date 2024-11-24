@@ -9,19 +9,15 @@ using namespace std;
 int main()
 {
     setlocale(LC_ALL, "Russian");
-
-	//ofstream out("results.txt"); //
+	ofstream out;
 
 	RenderWindow window(VideoMode(1280, 540), "ANT");
-
 	Font font;
 	font.loadFromFile("arial.ttf");
-
 
     char inFileName[140] = { "graph.txt" };
     Graph graph;
     graph.makeGraph(inFileName);
-
 	std::cout << "Создан граф:" << endl;
 	for (auto i : graph.nodes)
 		for (int j = 0; j != i->neighbours.size(); j++) {
@@ -45,11 +41,11 @@ int main()
 	bool gamePause = false;
 	bool step = false;
 	bool end = false;
-
-	//int iter = 0; //
+	int iter = 0;
 
 	while (window.isOpen())
 	{
+		// click handler
 		Event event;
 		while (window.pollEvent(event))
 		{
@@ -66,39 +62,33 @@ int main()
 		if (!gamePause && !end) {
 			if (step) gamePause = true;
 			if (anthill.process()) {
-				string txt = "Длина кратчайшего пути = " + to_string(anthill.min_value) + "\nСамый короткий путь:";
-				string eng_text = "min_value = " + to_string(anthill.min_value) + "\nmin trail:";
-				for (auto i : anthill.min_trail) {
-					txt += " " + i;
-					eng_text += " " + i;
+				if (anthill.great_ant_result >= anthill.stop_count || anthill.max_ant_count <= anthill.ant_number) {
+					cout << "Найден кратчайший путь: " << anthill.min_value << " за " << anthill.ant_number << " муравья" << endl;
+					//break;
+
+					if (iter < 10) {
+						iter += 1;
+						out.open("results.txt", ios::app);
+						out << anthill.min_value << " " << anthill.ant_number << endl;
+						out.close();
+
+						anthill = Anthill(graph);
+						anthill.read_conf_file();
+						anthill.file_name = "result" + to_string(iter) + ".txt";
+					}
+					else break;
 				}
-
-				std::cout << txt << "\nКоличество использованных муравьев " << anthill.ant_number << endl;
-
-				end = true;
-
-				//
-				/*out << to_string(anthill.min_value) << " " << anthill.ant_number << "\n";
-				anthill = Anthill(graph);
-				iter += 1;
-				if (iter > 100) window.close();
-				end = false;*/
-				//
-
-				text.setString(eng_text);
 			}
 		}
 
+		// interface display
 		window.clear(Color(255, 255, 255));
-		
-		
 		if (end) window.draw(text);
 		else {
 			window.draw(line, 2, Lines);
 			anthill.draw(window, font, true);
 			graph.draw(window, font);
 		}
-
 		window.display();
 	}
 }

@@ -86,7 +86,6 @@ void Graph::addEdge(Node* begin, Node* end, const int edgePrice, const float phe
 		break;
 	}
 	begin->addNeighbour(end, edgePrice, pheromone);
-
 }
 
 void Graph::removeEdge(Node* begin, Node* end) {
@@ -97,7 +96,6 @@ void Graph::removeEdge(Node* begin, Node* end) {
 void Graph::makeGraph(char* fileName) {
 	ifstream in(fileName);
 	string a, b, price;
-
 	srand((unsigned)time(0));
 
 	while (!in.eof()) {
@@ -132,8 +130,8 @@ void Graph::copy(Graph& graph) {
 		addNode(node);
 	}
 	for (auto i : graph.nodes) for (int j = 0; j < i->neighbours.size(); j++) {
-		Node* node1 = (&get_node_by_name(i->neighbours[j]->getName()));
-		Node* node2 = (&get_node_by_name(i->getName()));
+		Node* node1 = (&get_node_by_name(i->getName()));
+		Node* node2 = (&get_node_by_name(i->neighbours[j]->getName()));
 		addEdge(node1, node2, i->edgePrices[j], i->pheromones[j]);
 	}
 }

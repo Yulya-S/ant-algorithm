@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 using namespace std;
 using namespace sf;
@@ -23,7 +24,7 @@ public:
 	int y;
 
 	Node(const string& text, int coord_x, int coord_y);
-	void addNeighbour(Node* neighbour, const int edgePrice = 0, const float pheromone = 0.);
+	void addNeighbour(Node* neighbour, const int edgePrice = 0, const float pheromone = 1.);
 	void removeNeighbour(Node* neighbour);
 	int neighbour_index_by_name(const string name);
 	const string& getName() const { return name; }
@@ -38,7 +39,7 @@ public:
 
 	void addNode(Node* node);
 	void removeNode(Node* node);
-	void addEdge(Node* begin, Node* end, const int edgePrice = 0, const float pheromone = 0.);
+	void addEdge(Node* begin, Node* end, const int edgePrice = 0, const float pheromone = 1.);
 	void removeEdge(Node* begin, Node* end);
 	void makeGraph(char* fileName);
 	int get_index_node_by_name(const string name);
@@ -56,16 +57,9 @@ public:
 	int trail_summ = 0;
 	bool end_trail = false;
 	bool impasse = false;
-	float evaporation_rate;
 
-	float greed;
-
-	Ant(const float rate = 0.5, const float Greed = 1.) { evaporation_rate = rate; greed = Greed; }
-	void run(Graph& graph);
-	void pheromone_recalculation(Graph& graph, const string node_name);
-	float denominator(Graph& graph, const string node_name);
-	float summ_pheromone(Graph& graph, const string node_name);
-	int zero_trail(Graph& graph, const string node_name);
+	void run(Graph& graph, float alpha, float beta);
+	float denominator(Graph& graph, const string node_name, float alpha, float beta);
 	bool is_all_trail(Graph& graph, const string node_name);
 	bool name_in_trail(const string node_name);
 	void draw(RenderWindow& window, Graph& graph);
@@ -77,22 +71,26 @@ private:
 	Graph graph;
 	Text text;
 	Ant ant;
-	int great_ant_result = 0;
+	ofstream out;
 
-	float greed = 0.5;
+	float alpha = 1;
+	float beta = 1;
 	float evaporation_rate = 0.5;
-	int stop_count = 100;
-	int stop_ant_count = 5000;
 
 public:
 	int ant_number = 0;
+	int stop_count = 100; // number of repetitions of the best result for recovery
+	int great_ant_result = 0;
 	int min_value = 99999999;
 	int last_value = 99999999;
+	int max_ant_count = 10000;
+
 	vector<string> min_trail;
+	string file_name = "result.txt";
 
 	Anthill(Graph start_graph);
 	bool process();
-	void fixing_best_path(int fix_value = 10);
+	void pheramone_recalculation(int factor = 1);
 	void draw(RenderWindow& window, Font font, const bool draw_pheromones = false);
 	void read_conf_file();
 };
